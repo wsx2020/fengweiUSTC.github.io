@@ -4,13 +4,12 @@
 # ---------------------------------------------------------------
 
 # Site
-language: zh-Hans
 title: Wayne Fung's blog
 subtitle:
 description: ?????
 author: Wayne Fung
 # Support language: de, en, fr-FR, id, ja, ko, pt-BR, pt, ru, zh-Hans, zh-hk, zh-tw
-#language: zh-Hans
+language: zh-Hans
 date_format: '%Y-%m-%d'
 
 # URL
@@ -326,7 +325,7 @@ post_wordcount:
 #wechat_subscriber:
   #enabled: true
   #qcode: /path/to/your/wechatqcode ex. /uploads/wechat-qcode.jpg
-  description: ?????
+  #description: ?????
 
 # Declare license on posts
 post_copyright:
@@ -632,10 +631,10 @@ pace: false
 pace_theme: pace-theme-minimal
 
 # Canvas-nest
-canvas_nest: true
+canvas_nest: false
 
 # three_waves
-three_waves: false
+three_waves: true
 
 # canvas_lines
 canvas_lines: false
