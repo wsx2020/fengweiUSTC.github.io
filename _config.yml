@@ -6,7 +6,7 @@
 # Site
 title: Wayne Fung's blog
 subtitle:
-description: ?????
+description: simple life and happiness
 author: Wayne Fung
 # Support language: de, en, fr-FR, id, ja, ko, pt-BR, pt, ru, zh-Hans, zh-hk, zh-tw
 language: zh-Hans
@@ -634,7 +634,7 @@ pace_theme: pace-theme-minimal
 canvas_nest: false
 
 # three_waves
-three_waves: true
+three_waves: false
 
 # canvas_lines
 canvas_lines: false
