@@ -4,12 +4,13 @@
 # ---------------------------------------------------------------
 
 # Site
+language: zh-Hans
 title: Wayne Fung's blog
 subtitle:
 description: ?????
 author: Wayne Fung
 # Support language: de, en, fr-FR, id, ja, ko, pt-BR, pt, ru, zh-Hans, zh-hk, zh-tw
-language: zh-Hans
+#language: zh-Hans
 date_format: '%Y-%m-%d'
 
 # URL
@@ -122,7 +123,7 @@ menu:
   tags: /tags/
   archives: /archives/
   about: /about/
-  sitemap: /sitemap.xml
+  #sitemap: /sitemap.xml
   #commonweal: /404.html
 
 
@@ -264,8 +265,8 @@ sidebar:
   #  - always  expand for all pages automatically
   #  - hide    expand only when click on the sidebar toggle icon.
   #  - remove  Totally remove sidebar including sidebar toggle.
-  #display: post
-  display: always
+  display: post
+  #display: always
   #display: hide
   #display: remove
 
