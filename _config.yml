@@ -4,7 +4,7 @@
 # ---------------------------------------------------------------
 
 # Site
-title: NexT
+title: Wayne Fung's blog
 subtitle:
 description:
 author: Wayne Fung
@@ -203,7 +203,7 @@ font:
     size:
 
 
-
+   
 
 # ---------------------------------------------------------------
 # Sidebar Settings
@@ -231,9 +231,9 @@ social_icons:
   Weibo: weibo
 
 
-# Sidebar Avatar
+# Sidebar Avatar 
 # in directory: /assets/images/avatar.gif
-avatar: /assets/images/fat.png
+avatar: /assets/images/fat.jpg
 
 
 # Table Of Contents in the Sidebar
@@ -362,7 +362,7 @@ highlight_theme: normal
 
 # MathJax Support
 mathjax:
-  enable: false
+  enable: true
   per_page: false
   cdn: //cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML
 
@@ -373,14 +373,14 @@ han: false
 #swiftype_key:
 
 # Baidu Analytics ID
-#baidu_analytics:
+baidu_analytics:efb6246a4f85ac477f0e0014a5a58e12
 
 # Duoshuo ShortName
 #duoshuo_shortname:
 
 # Disqus
 disqus:
-  enable: false
+  enable: true
   shortname:
   count: true
   # hide comments (visitors need to click to load the comments)
@@ -631,7 +631,7 @@ pace: false
 pace_theme: pace-theme-minimal
 
 # Canvas-nest
-canvas_nest: false
+canvas_nest: true
 
 # three_waves
 three_waves: false
