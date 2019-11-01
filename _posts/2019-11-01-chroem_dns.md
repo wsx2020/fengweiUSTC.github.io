@@ -1,5 +1,6 @@
 ---
 title: Chrome清除DNS缓存
+link: http://fengweiustc.github.io/
 categories:
 - computer skills
 ---
