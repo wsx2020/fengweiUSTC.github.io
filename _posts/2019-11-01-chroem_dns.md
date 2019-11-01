@@ -10,13 +10,13 @@ categories:
 * 清除DNS cache
 > 在chrome地址栏, 输入`chrome://net-internals/#dns`会出现如下图所示`Clear host cache`按键, 点击清除cache即可.
 
-![](/assets/images/dns.png)
+![](/assets/images/chrome-dns.png)
 &emsp;&emsp;然而, 问题依然没有得到解决, 接下来尝试其它方案.
 
 * 清除浏览数据
 > 在`设置 -> 高级 -> 隐私设置和安全性 -> 清除浏览数据`中, 会有如下选项:
 
-![](/assets/images/cache.png)
+![](/assets/images/chrome-cache.png)
 &emsp;&emsp;选中`缓存的图片和文件`, 清除即可, 这下子问题得到了解决, 之前错误地以为需要清除cookie, 看来并没有搞清楚其中的关系. Anyway, 能解决问题就行.
 
 ***
