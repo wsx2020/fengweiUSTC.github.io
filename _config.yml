@@ -6,7 +6,7 @@
 # Site
 title: Wayne Fung's blog
 subtitle:
-description: Stay motivated, happy and contented
+description: Stay motivated & Be contented
 author: Wayne Fung
 # Support language: de, en, fr-FR, id, ja, ko, pt-BR, pt, ru, zh-Hans, zh-hk, zh-tw
 language: zh-Hans
@@ -577,7 +577,7 @@ calendar:
 
 # Algolia Search
 algolia_search:
-  enable: false
+  enable: true
   hits:
     per_page: 10
   labels:
