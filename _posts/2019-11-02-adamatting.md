@@ -1,7 +1,8 @@
 ---
 title:  Paper Reading - ICCV 2019 "Disentangled Image Matting"
 categories:
-- paper reading
+- paper-reading
+- matting
 ---
 
 &emsp;&emsp;2019年10月27日举行了ICCV会议, 旷视有一些论文被收录, 刚好看到有LLCV组的同事有论文在列, 做的东西也是组内业务所驱动的人像抠图(Image Matting)方向, 所以就把这篇文章给读了一下, 文章结构很清晰, 接下来针对内容做一些记录.
