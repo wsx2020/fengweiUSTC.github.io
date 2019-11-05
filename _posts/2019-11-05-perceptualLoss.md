@@ -5,7 +5,7 @@ categories:
 - loss
 ---
 
-&emsp;&emsp;这里李飞飞课题组的一篇文章, 与传统的pixel-wise loss不同, 用feature loss来衡量距离, 在迁移学习和超分辨率有一些用途. 突然回想起来以前同事在单帧超画质的模型中用到过, 当时还不知道是什么东西, 现在对文章内容做一些介绍.
+&emsp;&emsp;这是李飞飞课题组的一篇文章, 与传统的pixel-wise loss不同, 用feature loss来衡量距离, 在迁移学习和超分辨率有一些用途. 突然回想起来以前同事在单帧超画质的模型中用到过, 当时还不知道是什么东西, 现在对文章内容做一些介绍.
 
 ***
 ### 研究内容
@@ -49,10 +49,10 @@ categories:
 
 ### 思考
 >+ 对于风格迁移问题, 需要提取特征作为目标方向容易理解, 文中实现了与其他方法相比较好的效果且更高的计算效率, 这是很positive的. 但是对于超画质, 需要的就是pixel-wise accuracy, 为何用perceptual loss会有更好的效果?   
-&emsp;&emsp;-- 文中给的解释是: `the use of perceptual loss functions allows the trans-fer of semantic knowledge from the loss network to the transformation network.` 即从VGG中提取的feature包含了一些先验的语义信息, 对超画质中物体的边缘纹理等的预测有帮助作用. `The L_{pixel} loss gives fewer visual artifacts and higher PSNR values but the L_{feat} loss does a better job at reconstructing ne details, leading to pleasing visual results.`下图是文中针对这一点解释所举的例子, 虽然定量分数更低, 在是在感官上, 图中的物理边缘更清晰, 人为视觉效果更好, `suggesting that the L_{feat} model may be more aware of image semantics".` 
+&emsp;&emsp;-- 文中给的解释是: `the use of perceptual loss functions allows the trans-fer of semantic knowledge from the loss network to the transformation network.` 即从VGG中提取的feature包含了一些先验的语义信息, 对超画质中物体的边缘纹理等的预测有帮助作用. `The L_{pixel} loss gives fewer visual artifacts and higher PSNR values but the L_{feat} loss does a better job at reconstructing fine details, leading to pleasing visual results.`下图是文中针对这一点解释所举的例子, 虽然定量分数更低, 在是在感官上, 图中的物理边缘更清晰, 人为视觉效果更好, `suggesting that the L_{feat} model may be more aware of image semantics".` 
 ![](/assets/images/perceptualLoss/12.png)
 
->+ 对于超画质问题, 究竟需要取什么level的feature作为loss合适? 
+>+ 对于超画质问题, 究竟需要取什么level的feature作为loss合适?   
 &emsp;&emsp;-- 文中并未提及该点, 猜测是基于经验和调参. 个人觉得应该是取对应着线条轮廓那个level的feature. level太低, 对应的是local级别的纹理信息, level太高, 对应的是global级别的语义信息, 应该需要的是对应着语义信息的轮廓线条信息, 所以level不能太高也不能太低.
 
 <br
