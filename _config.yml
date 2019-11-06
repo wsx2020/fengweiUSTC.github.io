@@ -119,7 +119,7 @@ index_with_subtitle: false
 menu:
   home: /
   categories: /categories/
-  #tags: /tags/
+  tags: /tags/
   archives: /archives/
   about: /about/
   #sitemap: /sitemap.xml

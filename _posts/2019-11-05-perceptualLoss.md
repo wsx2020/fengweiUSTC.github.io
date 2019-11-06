@@ -2,6 +2,7 @@
 title:  Paper Reading - ECCV 2016 "Perceptual Losses for Real-Time Style Transfer and Super-Resolution"
 categories:
 - paper-reading
+tags:
 - loss
 ---
 
