@@ -4,6 +4,7 @@ categories:
 - paper-reading
 tags:
 - detection
+- RPN
 ---
 
 &emsp;&emsp;旷视detection组的一篇轻量级two-stage目标检测论文, 起的名字很好听, ThunderNet, 所以就特意找出来看一看. 以前接触detection比较少, 就趁这个机会把一些经典的object detection论文找出来读一读, 主要有two-stage的Faster-RCNN和ont-stage的YOLO、SDD, 它们奠定了一些基本的思路和框架, 新发表的论文基本是在此基础上做延伸, 有需要的时候再细看, 下面是一些总结.
@@ -24,7 +25,7 @@ tags:
 >+ # Faster-RCNN (NIPS 2015)
 
 &emsp;&emsp;MSRA出品, 作者列表中有孙剑、何凯明、任少卿等大佬, 这三位也是ResNet的部分作者. 其中任少卿是科大信院与MARS连培的博士, 我作为菜鸡真的是感叹人与人的差距比人与狗的差距还要大.
->> ## 网络结构  
+>> ### 网络结构  
 
 ![](/assets/images/detection/3.png)
 &emsp;&emsp;主要有四部分: Backbone, RPN, ROI Pooling, Classifier.    
@@ -51,7 +52,7 @@ c. 找出当前最大值0.81, 重复步骤b, 直到没有框可供筛选.
 
 &emsp;&emsp;**Classifier:** 输入是300x512x7x7的anchor feature, 输出有两路: 一路是每一个anchor的类别概率, 维度是300x81(有81个类); 另一路是每个anchor的坐标偏移修正法量, 维度是300x(81x4), 对框的位置进行精细修正. 这两个输出即是我们最终想要的"物体类别"和"物体位置".
 
->> ## 损失函数
+>> ### 损失函数
 
 &emsp;&emsp;RPN和Classifier是分开训练的, 因为目的不一样. RPN目的是找出存在物体的框, 只关心是否存在物体以及框的粗修正, 不关心框内是什么物体; Classifier只认为送给它的输入框内一定存在物体, 有一个很强的先验假设, 然后它在此基础上放心地去预测这个物理到底属于哪一类, 同时进行精细框修正.  
 &emsp;&emsp;**RPN loss:** 一个是对物体是否存在的分类loss, 原文中采用的是log loss, 其实就是cross entropy loss; 一个是对边界框偏移量进行修正的regression loss, 原文中采用的是smooth L1 loss, 俗称huber loss. 由于两部分loss的数量级差了将近10倍, 所以取$\lambda=10$进行量级平衡.
@@ -68,11 +69,35 @@ c. 找出当前最大值0.81, 重复步骤b, 直到没有框可供筛选.
 &emsp;&emsp;一篇博客: [Faster RCNN 学习笔记](https://www.cnblogs.com/wangyong/p/8513563.html)
 
 ***
->+ ## YOLO
+>+ # YOLO (CVPR 2016)
 
->+ ## SDD
+&emsp;&emsp;比Faster RCNN稍微晚了一点, 作者之一是Ross Girshick, 这个人同时也是Faster RCNN、Fast RCNN和RCNN的作者, 发表RCNN时在UC Berkeley, 发表Fast RCNN和Faster RCNN时去了微软, 发表现在这篇YOLO时是在Facebook AI, 简直给跪了.
+>> ### 网络结构 
+![](/assets/images/detection/11.png)
+&emsp;&emsp;网络结构平平无奇, 就是个类似于VGG一卷到底的结构. 主打轻量级end-to-end的模式, 没有复杂的RPN候选框机制, 文章开头就先把two-stage方法的复杂且低效吐槽了一遍, 强调该文的方法只需`you only look once`(YOLO), 有快速、低背景错误率和实际场景泛化能力强的优点.    
+&emsp;&emsp;下面来看该方法的特殊思路. 如果直接让模型既输出物体边界框, 又输出物体类别, 这是一个无法收敛的任务, 无法正确指明优化的方向, 所以得做一些特殊的处理.
+![](/assets/images/detection/12.png)
+&emsp;&emsp;首先, 强行把输入图片划分成SxS的网格(文中取7x7). 接下来有一个分支, 负责预测每个网格属于哪个类别(对应上图class probability map), 这里是不需要预测位置信息的, 输出维度是SxSxC, C是类别的个数; 另外一个分支, 在每个网格上提出B个anchor(文中取B=2), 预测的是这些anchor区域是不是有一个物体的可能性, 只考虑是不是物体, 不考虑物体的类别是什么, 这与RPN只负责检测是否存在物体有点类似. 另外, 还预测这B个anchor的4个坐标点的位置, 所以输出维度是SxSx(B$\ast$5). 最后这两个分支合起来, 输出维度就是SxSx(B$\ast$5+C). 虽然是这么分析, 但是具体到网络中, 直接把最后一维4096的向量reshape成SxSx(B$\ast$5+C), 重点放在了loss上.
 
->+ ## ThunderNET
+>> ### 损失函数
+&emsp;&emsp;由上面的分析知, `class probability`那一路负责预测类别, 它有每个网格内必定存在物体的先验, 所以预测的是$P(Class_i\mid Object)$; 另一路`bounding boxes + confidence`预测是否存在物体和位置, 可表示为$P(Object)\times IoU_{pred}^{truth}$. 最后将二者合并, 预测的就是我们的目的: 类别和位置.
+![](/assets/images/detection/13.png)
+&emsp;&emsp;既然是两个任务, 损失函数也要兼顾两部分任务. 一, 对于四个位置点(x, y, w, h)的预测, 采用了MSE loss, 特殊地, 大框位置偏一点对总体IoU影响不大, 但是小框位置偏一点对最后IoU 影响很大, 所以要提高小框影响的权重, 也是就是降低大框的权重, 所以loss里用的是$\sqrt w, \sqrt h$. 二, 对于anchor confidence的预测, 它们的重要性不如位置点的预测,位置点先预测准了, confidence自然就上去了, 所以做权重调整, 文中给的是$\lambda_{coord}=5, \lambda_{haveObject}=1, \lambda_{noObject}=0.5$. 三, 对于网格类别的预测, 文中没有采用one-hot编码, 而是每一类都预测一个浮点型概率, 最后采用MSE loss. 如下图, 第一二行对应位置回归, 三四行对应是否存在物体的confidence回归, 第五行对应网格点物体类别回归.
+![](/assets/images/detection/14.png)
+&emsp;&emsp;最后, 对所有修正后的anchor进行非最大值抑制, 这个在Faster RCNN中也有介绍, 不再赘述.
+
+>> ### 模型效果
+&emsp;&emsp;虽然效果不是最佳的, 但是运行速度FPS显著高于其它, 达到了效果和性能的综合最佳. 同时, 与Fast RCNN相比, 虽然它的位置出错率占比更高, 但是它的背景出错率占比更低, 也就是它的False Positive更低, 不容易把背景认成Object. 
+![](/assets/images/detection/15.png)
+![](/assets/images/detection/16.png)
+<br
+/>
+&emsp;&emsp;YOLO原文: [YOLO](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf)
+
+
+>+ # SDD
+
+>+ # ThunderNET
 
 
 <br
