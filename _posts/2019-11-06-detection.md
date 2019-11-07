@@ -73,6 +73,7 @@ c. 找出当前最大值0.81, 重复步骤b, 直到没有框可供筛选.
 
 &emsp;&emsp;比Faster RCNN稍微晚了一点, 作者之一是Ross Girshick, 这个人同时也是Faster RCNN、Fast RCNN和RCNN的作者, 发表RCNN时在UC Berkeley, 发表Fast RCNN和Faster RCNN时去了微软, 发表现在这篇YOLO时是在Facebook AI, 简直给跪了.
 >> ### 网络结构 
+
 ![](/assets/images/detection/11.png)
 &emsp;&emsp;网络结构平平无奇, 就是个类似于VGG一卷到底的结构. 主打轻量级end-to-end的模式, 没有复杂的RPN候选框机制, 文章开头就先把two-stage方法的复杂且低效吐槽了一遍, 强调该文的方法只需`you only look once`(YOLO), 有快速、低背景错误率和实际场景泛化能力强的优点.    
 &emsp;&emsp;下面来看该方法的特殊思路. 如果直接让模型既输出物体边界框, 又输出物体类别, 这是一个无法收敛的任务, 无法正确指明优化的方向, 所以得做一些特殊的处理.
@@ -80,6 +81,7 @@ c. 找出当前最大值0.81, 重复步骤b, 直到没有框可供筛选.
 &emsp;&emsp;首先, 强行把输入图片划分成SxS的网格(文中取7x7). 接下来有一个分支, 负责预测每个网格属于哪个类别(对应上图class probability map), 这里是不需要预测位置信息的, 输出维度是SxSxC, C是类别的个数; 另外一个分支, 在每个网格上提出B个anchor(文中取B=2), 预测的是这些anchor区域是不是有一个物体的可能性, 只考虑是不是物体, 不考虑物体的类别是什么, 这与RPN只负责检测是否存在物体有点类似. 另外, 还预测这B个anchor的4个坐标点的位置, 所以输出维度是SxSx(B$\ast$5). 最后这两个分支合起来, 输出维度就是SxSx(B$\ast$5+C). 虽然是这么分析, 但是具体到网络中, 直接把最后一维4096的向量reshape成SxSx(B$\ast$5+C), 重点放在了loss上.
 
 >> ### 损失函数
+
 &emsp;&emsp;由上面的分析知, `class probability`那一路负责预测类别, 它有每个网格内必定存在物体的先验, 所以预测的是$P(Class_i\mid Object)$; 另一路`bounding boxes + confidence`预测是否存在物体和位置, 可表示为$P(Object)\times IoU_{pred}^{truth}$. 最后将二者合并, 预测的就是我们的目的: 类别和位置.
 ![](/assets/images/detection/13.png)
 &emsp;&emsp;既然是两个任务, 损失函数也要兼顾两部分任务. 一, 对于四个位置点(x, y, w, h)的预测, 采用了MSE loss, 特殊地, 大框位置偏一点对总体IoU影响不大, 但是小框位置偏一点对最后IoU 影响很大, 所以要提高小框影响的权重, 也是就是降低大框的权重, 所以loss里用的是$\sqrt w, \sqrt h$. 二, 对于anchor confidence的预测, 它们的重要性不如位置点的预测,位置点先预测准了, confidence自然就上去了, 所以做权重调整, 文中给的是$\lambda_{coord}=5, \lambda_{haveObject}=1, \lambda_{noObject}=0.5$. 三, 对于网格类别的预测, 文中没有采用one-hot编码, 而是每一类都预测一个浮点型概率, 最后采用MSE loss. 如下图, 第一二行对应位置回归, 三四行对应是否存在物体的confidence回归, 第五行对应网格点物体类别回归.
@@ -87,6 +89,7 @@ c. 找出当前最大值0.81, 重复步骤b, 直到没有框可供筛选.
 &emsp;&emsp;最后, 对所有修正后的anchor进行非最大值抑制, 这个在Faster RCNN中也有介绍, 不再赘述.
 
 >> ### 模型效果
+
 &emsp;&emsp;虽然效果不是最佳的, 但是运行速度FPS显著高于其它, 达到了效果和性能的综合最佳. 同时, 与Fast RCNN相比, 虽然它的位置出错率占比更高, 但是它的背景出错率占比更低, 也就是它的False Positive更低, 不容易把背景认成Object. 
 ![](/assets/images/detection/15.png)
 ![](/assets/images/detection/16.png)
