@@ -98,7 +98,41 @@ c. 找出当前最大值0.81, 重复步骤b, 直到没有框可供筛选.
 &emsp;&emsp;YOLO原文: [YOLO](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf)
 
 
->+ # SDD
+>+ # SDD (ECCV 2016)
+
+&emsp;&emsp;稍晚于YOLO, 因此也借鉴了一些YOLO one-stage的思想, 感觉是出于技术的后发优势, 达到了性能优于Faster RCNN且速度优于YOLO的效果. 文章做的工作很好, 但是不得不吐槽一下文章的写作真是一言难尽, 很多细节没有表述清楚, 还有很多冗余的废话, 用了很多长句. 看了一下第一作者, 是个中国学生写的, 也就不觉得奇怪了.
+>> 示例一: `we evaluate a small set of default boxes of different aspect ratios at each location in several feature maps with different scales.`  
+示例二: `By combining predictions for all default boxes with different scales and aspect ratios from all locations of many feature maps,`
+
+&emsp;&emsp;不禁让我想起自己的论文, 其实也犯了很多这样的错误, 滥用长句, 一个句子里"of、for、in、with、from、by"这些介词全用上了, 其实完全拆开写成短句更清晰. 还有就是用了很多主动语态, 公式里的符号没有紧接着完全点明含义. 在英文写作这块, 很多非母语作者也表述得很地道, 读起来完全没有理解障碍, 写的时候应该也是花了一番心思的, 所以以后看文章要多留心native的表达方式.
+
+>> ### 网络结构
+
+![](/assets/images/detection/17.png)
+&emsp;&emsp;跟YOLO相比, 无非就是在不同level的feature上都提出anchor, 以此来捕捉不同尺度大小的物体. 具体的来说, 浅层感受域小的feature用来检测小目标, 深层感受域大的feature用来检测大目标. 同时, 不同level的feature由于大小不同, anchor的大小也根据feature的大小来相应成比例变化.
+![](/assets/images/detection/22.png)
+![](/assets/images/detection/18.png)
+
+>> ### 损失函数
+
+&emsp;&emsp;跟YOLO有点类似, 分为类别预测loss和位置回归loss, 其中类别预测loss用的是softmax loss, 位置回归loss用的是smooth L1 loss.
+![](/assets/images/detection/19.png)
+![](/assets/images/detection/20.png)
+![](/assets/images/detection/21.png)
+
+>> ### 训练策略
+
+&emsp;&emsp;Matching strategy: feature上的每个pixel都有好几个anchor, 所以anchor总数很多, 需要进行筛选, 与Ground Truth的IoU超过阈值0.5, 才会认为是正例.  
+&emsp;&emsp;Hard negative mining: 反例往往多于正例, 这会导致在训练时loss被反例所支配, 所以要进行比例调整, 按照confidence score排序, 挑选前面的部分正例, 使得正例:反例=1:3.  
+&emsp;&emsp;Data augmentation: 三种方式, 一种是输入原图, 另一种是在原图上随机取patch, 最后一种是在Ground Truth周围随机取patch(IoU=0.1, 0.3, 0.5, 0.7, 0.9), 这种patch在后面利用率很高. 后面还有0.5概率随机flip.
+
+>> ### 模型效果及评价
+![](/assets/images/detection/23.png)
+&emsp;&emsp;mAP比Faster RCNN要好, FPS还比YOLO要高. 总体感觉, 整体思想其实跟YOLO没什么本质区别, 只是增加了更多的数据增广手段, 如多level的feature、随机取patch, 提升了不同尺度下物体的效果. YOLO中对anchor未做长宽比限制, 也就是说每个anchor的形状都是随机无假设的, 而SSD做了不同宽高比的anchor假设, 这里就存在一个先验假设, 假设了物体的不同尺寸, 这个假设对结果有一定的提升. 说白了, 就是trick比较多, 对结果提升有好处, 坏处是很多超参(如宽高比、feature的选择)的调整是手动的, 依据经验的.  
+<br
+/>
+&emsp;&emsp;SSD原文: [SSD](https://arxiv.xilesou.top/pdf/1512.02325.pdf)
+
 
 >+ # ThunderNET
 
