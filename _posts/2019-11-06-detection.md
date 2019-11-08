@@ -1,5 +1,5 @@
 ---
-title:  Paper Reading - ICCV 2019 "ThunderNet - Towards Real-time Generic Object Detection"
+title:  Paper review - Faster RCNN/YOLO/SSD & Paper Reading - ICCV 2019 "ThunderNet - Towards Real-time Generic Object Detection"
 categories:
 - paper-reading
 tags:
@@ -30,11 +30,12 @@ tags:
 ![](/assets/images/detection/3.png)
 &emsp;&emsp;主要有四部分: Backbone, RPN, ROI Pooling, Classifier.    
 &emsp;&emsp;**Backbone:** 把固定大小为1000x600的input, 降采样为原来的1/16(用了4个2x2的pooling), 输出维度为512x60x40.  
-&emsp;&emsp;**RPN:** 对每一个pixel提出9个候选框anchor, 这9种anchor如下图所示(长宽比0.5、1、2, 缩放比8、16、32), 一共有60x40x9=21600个anchor. 
+&emsp;&emsp;**RPN:** 
+&emsp;&emsp;-- 对每一个pixel提出9个候选框anchor, 这9种anchor如下图所示(长宽比0.5、1、2, 缩放比8、16、32), 一共有60x40x9=21600个anchor. 
 ![](/assets/images/detection/4.png)
-&emsp;&emsp;&emsp;&emsp;有两个分支, 一路做regression, 输出anchor的四个坐标(中心点x、y, 宽高w、h), 维度是36x60x40, 36即是9种anchor的4个坐标点(其实不是绝对坐标, 而是坐标的偏差, 类似于残差的思想, 在后面loss一节会再做详细介绍); 另一路做classification, 输出该anchor是否存在物体(0或1), 维度是18x60x40, 18即是9种anchor被softmax分成0或1的两类.  
-&emsp;&emsp;&emsp;&emsp;这些anchor数量太多了, 需要进行剔除. 首先去掉超出feature边界的框, 然后标记与Ground Truth之间IoU超过0.7的框即为正例保留, 标记与Ground Truth之间IoU小于0.3的框为反例保留, 其余框剔除. 然后在剩下的框中, 正例随机取128个, 反例随即取128个进行训练. (不同的是, 在inference时, 如果有anchor越界了, 不会进行剔除, 会对其进行clip, 限定在图像区域内.)  
-&emsp;&emsp;&emsp;&emsp;RPN最后还有一个Proposal层, 细节也比较多. proposal接受经过残差修正后的新anchor(如何修正见下节loss介绍), 再次进行剔除(越界剔除、宽高过小的anchor剔除), 接下来进行非极大值抑制, 旨在去掉重复区域较多的anchors提高效率. 然后按照前面的输出softmax score从大到小对anchors进行排序, 选择前面topN的anchors(即只保留正例anchors). 至此, anchor就是比较干净和较准确的框了, 可以送入下一步进行分类识别.  
+&emsp;&emsp;- 有两个分支, 一路做regression, 输出anchor的四个坐标(中心点x、y, 宽高w、h), 维度是36x60x40, 36即是9种anchor的4个坐标点(其实不是绝对坐标, 而是坐标的偏差, 类似于残差的思想, 在后面loss一节会再做详细介绍); 另一路做classification, 输出该anchor是否存在物体(0或1), 维度是18x60x40, 18即是9种anchor被softmax分成0或1的两类.
+&emsp;&emsp;-- 这些anchor数量太多了, 需要进行剔除. 首先去掉超出feature边界的框, 然后标记与Ground Truth之间IoU超过0.7的框即为正例保留, 标记与Ground Truth之间IoU小于0.3的框为反例保留, 其余框剔除. 然后在剩下的框中, 正例随机取128个, 反例随即取128个进行训练. (不同的是, 在inference时, 如果有anchor越界了, 不会进行剔除, 会对其进行clip, 限定在图像区域内.)  
+&emsp;&emsp;-- RPN最后还有一个Proposal层, 细节也比较多. proposal接受经过残差修正后的新anchor(如何修正见下节loss介绍), 再次进行剔除(越界剔除、宽高过小的anchor剔除), 接下来进行非极大值抑制, 旨在去掉重复区域较多的anchors提高效率. 然后按照前面的输出softmax score从大到小对anchors进行排序, 选择前面topN的anchors(即只保留正例anchors). 至此, anchor就是比较干净和较准确的框了, 可以送入下一步进行分类识别.  
 >>> -- 非极大值抑制(Non-Maximun Suppression/NMS): 
 ![](/assets/images/detection/5.png)
 a. 对所有anchor的得分从大到小排序, 如上图[0.98, 0.83, 0.81, 0.75, 0.67].  
@@ -55,9 +56,10 @@ c. 找出当前最大值0.81, 重复步骤b, 直到没有框可供筛选.
 >> ### 损失函数
 
 &emsp;&emsp;RPN和Classifier是分开训练的, 因为目的不一样. RPN目的是找出存在物体的框, 只关心是否存在物体以及框的粗修正, 不关心框内是什么物体; Classifier只认为送给它的输入框内一定存在物体, 有一个很强的先验假设, 然后它在此基础上放心地去预测这个物理到底属于哪一类, 同时进行精细框修正.  
-&emsp;&emsp;**RPN loss:** 一个是对物体是否存在的分类loss, 原文中采用的是log loss, 其实就是cross entropy loss; 一个是对边界框偏移量进行修正的regression loss, 原文中采用的是smooth L1 loss, 俗称huber loss. 由于两部分loss的数量级差了将近10倍, 所以取$\lambda=10$进行量级平衡.
+&emsp;&emsp;**RPN loss:** 
+&emsp;&emsp;-- 一个是对物体是否存在的分类loss, 原文中采用的是log loss, 其实就是cross entropy loss; 一个是对边界框偏移量进行修正的regression loss, 原文中采用的是smooth L1 loss, 俗称huber loss. 由于两部分loss的数量级差了将近10倍, 所以取$\lambda=10$进行量级平衡.
 ![](/assets/images/detection/9.png)
-&emsp;&emsp;&emsp;&emsp;再来看, anchor的四个坐标表示到底是什么, 摘抄原文中的一段如下, 即用$(t_x, t_y, t_w, t_h)$表示偏移量, 它们越小表示box重叠地越好. 回归收敛后, 可使用$(t_x, t_y, t_w, t_h)$转换得到真正的$(x_a, y_a, w_a, h_a)$.
+&emsp;&emsp;-- 再来看, anchor的四个坐标表示到底是什么, 摘抄原文中的一段如下, 即用$(t_x, t_y, t_w, t_h)$表示偏移量, 它们越小表示box重叠地越好. 回归收敛后, 可使用$(t_x, t_y, t_w, t_h)$转换得到真正的$(x_a, y_a, w_a, h_a)$.
 ![](/assets/images/detection/10.png)
 &emsp;&emsp;**Classfier loss:** 基本同上, 一个分类loss, 对应着不同的类别(不同的是, RPN分类只有0和1两类, 而这里有81类); 一个是回归loss, 对应着精细框位置修正.  
 &emsp;&emsp;**训练过程:** 一, 导入ImageNet预训练模型, 单独训练RPN; 二, 单独训练Classifier, 它的输入是上一步训练好的RPN提供的proposal; 三, 再次单独训练RPN, 这次会先把Classifier的部分Conv层权重导入到RPN并冻结, 这里就是共享权重的地方, 节省了计算时间; 四, 单独训练Classifier, 这里在上一步中共享给了RPN的权重会被冻结, 输入是上一步训练好的RPN提供的proposal. 本质就是一种迭代循环, Classifier不断地共享它的部分权重给RPN, 二者轮流fine tune, 只不过文中只循环了两次, 作者说两次循环就够了, 再往下循环下去对性能也没有太大提升.  
@@ -122,11 +124,12 @@ c. 找出当前最大值0.81, 重复步骤b, 直到没有框可供筛选.
 
 >> ### 训练策略
 
-&emsp;&emsp;Matching strategy: feature上的每个pixel都有好几个anchor, 所以anchor总数很多, 需要进行筛选, 与Ground Truth的IoU超过阈值0.5, 才会认为是正例.  
-&emsp;&emsp;Hard negative mining: 反例往往多于正例, 这会导致在训练时loss被反例所支配, 所以要进行比例调整, 按照confidence score排序, 挑选前面的部分正例, 使得正例:反例=1:3.  
-&emsp;&emsp;Data augmentation: 三种方式, 一种是输入原图, 另一种是在原图上随机取patch, 最后一种是在Ground Truth周围随机取patch(IoU=0.1, 0.3, 0.5, 0.7, 0.9), 这种patch在后面利用率很高. 后面还有0.5概率随机flip.
+&emsp;&emsp;-- Matching strategy: feature上的每个pixel都有好几个anchor, 所以anchor总数很多, 需要进行筛选, 与Ground Truth的IoU超过阈值0.5, 才会认为是正例.  
+&emsp;&emsp;-- Hard negative mining: 反例往往多于正例, 这会导致在训练时loss被反例所支配, 所以要进行比例调整, 按照confidence score排序, 挑选前面的部分正例, 使得正例:反例=1:3.  
+&emsp;&emsp;-- Data augmentation: 三种方式, 一种是输入原图, 另一种是在原图上随机取patch, 最后一种是在Ground Truth周围随机取patch(IoU=0.1, 0.3, 0.5, 0.7, 0.9), 这种patch在后面利用率很高. 后面还有0.5概率随机flip.
 
 >> ### 模型效果及评价
+
 ![](/assets/images/detection/23.png)
 &emsp;&emsp;mAP比Faster RCNN要好, FPS还比YOLO要高. 总体感觉, 整体思想其实跟YOLO没什么本质区别, 只是增加了更多的数据增广手段, 如多level的feature、随机取patch, 提升了不同尺度下物体的效果. YOLO中对anchor未做长宽比限制, 也就是说每个anchor的形状都是随机无假设的, 而SSD做了不同宽高比的anchor假设, 这里就存在一个先验假设, 假设了物体的不同尺寸, 这个假设对结果有一定的提升. 说白了, 就是trick比较多, 对结果提升有好处, 坏处是很多超参(如宽高比、feature的选择)的调整是手动的, 依据经验的.  
 <br
@@ -134,13 +137,34 @@ c. 找出当前最大值0.81, 重复步骤b, 直到没有框可供筛选.
 &emsp;&emsp;SSD原文: [SSD](https://arxiv.xilesou.top/pdf/1512.02325.pdf)
 
 
->+ # ThunderNET
+>+ # ThunderNet
 
+&emsp;&emsp;旷视做了很多模型轻量化的探索, 比如著名的shuffleNet系列, 主要是针对将来部署在端上(手机或摄像头)的实时模型需求. 这篇ThunderNet就是在这种业务背景下催生出来的, 虽然是two-stage, 但是能够在ARM平台上real-time运行.
+![](/assets/images/detection/24.png)
+
+>> ### 网络结构
+
+&emsp;&emsp;**Backbone Part:** 320x320固定大小的输入. 传统detection模型的backbone都是从一个classifier网络(例如VGG)迁移而来, 但文中指出`classification`和`detection`任务的性质不同, 具体来说, `classification`需要大的感受域和high level的feature来进行分类, 不关心local的纹理细节, 而`detection`需要low-level的纹理细节(或者说空间信息)来进行定位,  同时又要求大的感受域使得看到物体的范围更大. 因此`detection`所用的网络应该是又浅又大的(层数少且感受域大), 文中的backbone采用了ShuffleNet V2, 但是为了增加low-level的重要性, 将其中3x3的Conv换成了5x5的Conv, 还在low-level feature上增加了更多的channel数. 以上便是被称为SNet的Backbone.  
+&emsp;&emsp;**Detection Part:**   
+&emsp;&emsp;-- Context Enhancement Module: backbone的输出感受域还是不够大, 在这里, 为了进一步扩大感受域, 采用了金字塔型的多级feature融合方法, 即在backbone的末级用1x1的Conv和上采样得到local context information和global context information.  
+![](/assets/images/detection/25.png)
+&emsp;&emsp;-- RPN & subnet: RPN与Faster RCNN中的结构差不多, subnet仅仅是一个卷积层和一个全连接层.   
+&emsp;&emsp;-- Spatial Attention Module: 这个模块是一个与RPN并行的分支旁路, 它的目的是利用RPN所学得的前景和背景的区别, 增强网络对前景的关注, 降低对背景的关注度. 同时, 它也是一种short cut, 能增强梯度的流动.  
+![](/assets/images/detection/26.png)
+
+>> ### 损失函数
+
+&emsp;&emsp;文中并未提及loss函数, 猜测和同样是two-stage的Faster RCNN的loss差不多.
+
+>> ### 模型效果
+
+![](/assets/images/detection/27.png)
+
+>> ### 模型评价
+
+&emsp;&emsp;因为是旷视系的文章, 所以文章倾向于使用或引用孙剑老师门下的文章结构(如GCN、shuffleNet、Lighthead r-cnn等). 同时, 依靠一些对网络模型的理解和经验, 设计了各种模块达到想要的目的. 虽然可能在模型创新上不是break through, 但是具有很强的实用价值, 可以实时运行在ARM上. 所以要多看文章, 理解神经网络模型的意义, 各个feature对应着什么, 各种任务需要的是什么, 才能合理"搭积木".  
 
 <br
 />
-
-
-[link1]: http://papers.nips.cc/paper/5633-texture-synthesis-using-convolutional-neural-networks
-[link2]: https://arxiv.xilesou.top/abs/1508.06576
+&emsp;&emsp;ThunderNet原文: [ThunderNet](https://arxiv.xilesou.top/pdf/1903.11752.pdf)
 
