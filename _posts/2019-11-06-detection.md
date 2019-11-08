@@ -7,7 +7,7 @@ tags:
 - RPN
 ---
 
-&emsp;&emsp;旷视detection组的一篇轻量级two-stage目标检测论文, 起的名字很好听, ThunderNet, 所以就特意找出来看一看. 以前接触detection比较少, 就趁这个机会把一些经典的object detection论文找出来读一读, 主要有two-stage的Faster-RCNN和ont-stage的YOLO、SDD, 它们奠定了一些基本的思路和框架, 新发表的论文基本是在此基础上做延伸, 有需要的时候再细看, 下面是一些总结.
+&emsp;&emsp;旷视detection组的一篇轻量级two-stage目标检测论文, 起的名字很好听, ThunderNet, 所以就特意找出来看一看. 以前接触detection比较少, 就趁这个机会把一些经典的object detection论文找出来读一读, 主要有two-stage的Faster-RCNN和ont-stage的YOLO、SDD, 它们奠定了一些基本的思路和框架, 新发表的论文基本是在此基础上做延伸, 有需要的时候再细看, 下面是一些总结. (全文4000多字, 涉及4篇paper, 27张图, 加载起来可能比较慢.)
 
 ***
 >+ # 问题概述
@@ -30,7 +30,7 @@ tags:
 ![](/assets/images/detection/3.png)
 &emsp;&emsp;主要有四部分: Backbone, RPN, ROI Pooling, Classifier.    
 &emsp;&emsp;**Backbone:** 把固定大小为1000x600的input, 降采样为原来的1/16(用了4个2x2的pooling), 输出维度为512x60x40.  
-&emsp;&emsp;**RPN:** 
+&emsp;&emsp;**RPN:**   
 &emsp;&emsp;-- 对每一个pixel提出9个候选框anchor, 这9种anchor如下图所示(长宽比0.5、1、2, 缩放比8、16、32), 一共有60x40x9=21600个anchor. 
 ![](/assets/images/detection/4.png)
 &emsp;&emsp;- 有两个分支, 一路做regression, 输出anchor的四个坐标(中心点x、y, 宽高w、h), 维度是36x60x40, 36即是9种anchor的4个坐标点(其实不是绝对坐标, 而是坐标的偏差, 类似于残差的思想, 在后面loss一节会再做详细介绍); 另一路做classification, 输出该anchor是否存在物体(0或1), 维度是18x60x40, 18即是9种anchor被softmax分成0或1的两类.
@@ -56,7 +56,7 @@ c. 找出当前最大值0.81, 重复步骤b, 直到没有框可供筛选.
 >> ### 损失函数
 
 &emsp;&emsp;RPN和Classifier是分开训练的, 因为目的不一样. RPN目的是找出存在物体的框, 只关心是否存在物体以及框的粗修正, 不关心框内是什么物体; Classifier只认为送给它的输入框内一定存在物体, 有一个很强的先验假设, 然后它在此基础上放心地去预测这个物理到底属于哪一类, 同时进行精细框修正.  
-&emsp;&emsp;**RPN loss:** 
+&emsp;&emsp;**RPN loss:**   
 &emsp;&emsp;-- 一个是对物体是否存在的分类loss, 原文中采用的是log loss, 其实就是cross entropy loss; 一个是对边界框偏移量进行修正的regression loss, 原文中采用的是smooth L1 loss, 俗称huber loss. 由于两部分loss的数量级差了将近10倍, 所以取$\lambda=10$进行量级平衡.
 ![](/assets/images/detection/9.png)
 &emsp;&emsp;-- 再来看, anchor的四个坐标表示到底是什么, 摘抄原文中的一段如下, 即用$(t_x, t_y, t_w, t_h)$表示偏移量, 它们越小表示box重叠地越好. 回归收敛后, 可使用$(t_x, t_y, t_w, t_h)$转换得到真正的$(x_a, y_a, w_a, h_a)$.
@@ -99,7 +99,7 @@ c. 找出当前最大值0.81, 重复步骤b, 直到没有框可供筛选.
 />
 &emsp;&emsp;YOLO原文: [YOLO](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Redmon_You_Only_Look_CVPR_2016_paper.pdf)
 
-
+***
 >+ # SDD (ECCV 2016)
 
 &emsp;&emsp;稍晚于YOLO, 因此也借鉴了一些YOLO one-stage的思想, 感觉是出于技术的后发优势, 达到了性能优于Faster RCNN且速度优于YOLO的效果. 文章做的工作很好, 但是不得不吐槽一下文章的写作真是一言难尽, 很多细节没有表述清楚, 还有很多冗余的废话, 用了很多长句. 看了一下第一作者, 是个中国学生写的, 也就不觉得奇怪了.
@@ -136,8 +136,8 @@ c. 找出当前最大值0.81, 重复步骤b, 直到没有框可供筛选.
 />
 &emsp;&emsp;SSD原文: [SSD](https://arxiv.xilesou.top/pdf/1512.02325.pdf)
 
-
->+ # ThunderNet
+***
+>+ # ThunderNet (ICCV 2019)
 
 &emsp;&emsp;旷视做了很多模型轻量化的探索, 比如著名的shuffleNet系列, 主要是针对将来部署在端上(手机或摄像头)的实时模型需求. 这篇ThunderNet就是在这种业务背景下催生出来的, 虽然是two-stage, 但是能够在ARM平台上real-time运行.
 ![](/assets/images/detection/24.png)
