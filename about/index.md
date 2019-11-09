@@ -3,6 +3,9 @@ layout: page
 type: about
 ---
 
-关于我, 一个写代码很挫的程序员, 于近期正式入了互联网的坑, 希望能在这里记录下一些有趣的和有用的东西.
-
-Coding, 往后请多指教.
+&emsp;&emsp;关于我, 一个写代码很挫的程序员, 希望能在这里记录下一些有用的和有趣的东西.  
+<br
+/>
+<br
+/>
+&emsp;&emsp;Contact me: fengwei@mevii.com
