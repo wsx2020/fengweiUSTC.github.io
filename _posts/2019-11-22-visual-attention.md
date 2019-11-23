@@ -10,6 +10,7 @@ tags:
 
 ***
 >+ # 我理解的`Attention`
+
 &emsp;&emsp;虽然自己完全不懂NLP, 但是`attention`最初起源于NLP的应用, 所以有必要在这里提一下. 这里举一个常见的例子, 在NLP的不定长时序输入中, `I come from {China}, ... and i speak {Chinese}.`, 这里的`Chinese`其实跟前面出现过的`China`关系最大, 跟离它最近的`speak`反而关系不是最大, 但在RNN/LSTM中, 由于存在着长期遗忘的特性, 当`Chinese`和`China`之间的距离很远时, 它们二者的相互影响比较弱, 可能会被误判成`English`这类的. 所以为了解决这个问题, 需要人为地加强`Chinese`和`China`之间的联系, 让它们之间的权重比较大并占据主导地位, 即`pay more attention to "China"`, 这就是字面上`attention`的理解.  
 &emsp;&emsp;在CV中也存在同样的问题, 图像中可能存在多个主体, 但我们最想关注的可能只是其中某一个主体, 这个时候就需要针对该主体做突出的强调, 让我们的网络更多地去关注(`attention`)该特定的主体. 直白地说, `attention map`就是权重图或者说是热力图. 那这跟`convolution feature map`有什么区别呢? 好像没太大区别, 本质是差不多的. `feature map`有或大或小的权值, 对应着给输入施以不同大小的权重, 但区别就在于`feature map`作用于整个`global image`, 其中存在着很多不相干的信息冗余. 而在`attention map`中, 由`feature map`中的权重经`Softmax`后产生的`attention score`介于0-1之间, 很小的`attention score`会把不相干的信息去除, 把相干的信息权重进一步提高, 相当于在`feature map`的基础上做二次强调处理. 下图便是一些直观的`attention map`.  
 ![](/assets/images/attention/1.png)
@@ -43,6 +44,7 @@ tags:
 
 ***
 >+ # Squeeze-and-Excitation Networks (CVPR 2018)
+
 &emsp;&emsp;前面提到的是一种`hard attention`, 与之类似的还有`soft attention`. 接下来的这篇文章通过改造`ResNet`的`residual module`, 实现了一种类似于`ResBlock`的`attention block`, 突出`the channel relationship`.  
 
 >+ ### 网络结构
@@ -56,6 +58,7 @@ tags:
 &emsp;&emsp;文中针对该模块的功能, 给出的解释是`we propose a mechanism that allows the network to perform feature recalibration, through which it can learn to use global information to selectively emphasise informative features and suppress less useful ones.` 关键词是`feature recalibration`, 这即是`attention`所在.  
 
 >+ ### 模型思考
+
 &emsp;&emsp;与上一篇中提到的猜想类似, `attention`确实类似于`ResNet`中的`skip connection`. 所以作者也将此模块嵌入到了`ResBlock`和`Inception block`中.  
 ![](/assets/images/attention/9.png)
 ![](/assets/images/attention/10.png)
@@ -81,7 +84,7 @@ tags:
 
 >+ ### 模型思考
 
-&emsp;&emsp;其实这篇文章不是很懂, NIPS上的很多文章都比较简短, 细节也没说清楚, 需要比较多的预备知识. 比如这里的`queries`, `keys`和`values`到底是啥, 我目前还不太了解, 这里有一个[Attention相关的blog](https://lilianweng.github.io/lil-log/2018/06/24/attention-attention.html#whats-wrong-with-seq2seq-model)可供日后学习. 总之, 模块中也存在`skip connection`, 也有`Softmax`等二值分化操作.  
+&emsp;&emsp;其实这篇文章不是很懂, NIPS上的很多文章都比较简短, 细节也没说清楚, 需要比较多的预备知识. 比如这里的`queries`, `keys`和`values`到底是啥, 我目前还不太了解, 这里有一个[lilianweng's blog](https://lilianweng.github.io/lil-log/2018/06/24/attention-attention.html#whats-wrong-with-seq2seq-model)和[Jay Alammar's blog](http://jalammar.github.io/illustrated-transformer/)可供日后学习. 总之, 模块中也存在`skip connection`, 也有`Softmax`等二值分化操作.  
 
 论文链接: [Stand-Alone Self-Attention in Vision Models](http://papers.nips.cc/paper/8302-stand-alone-self-attention-in-vision-models.pdf)
 
