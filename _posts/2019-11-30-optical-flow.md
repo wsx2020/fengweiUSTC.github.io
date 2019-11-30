@@ -1,5 +1,5 @@
 ---
-title:  光流Optical-flow: FlowNet & FlowNet 2.0
+title:  光流Optical flow -- FlowNet & FlowNet 2.0
 categories:
 - paper-reading
 tags:
@@ -9,7 +9,7 @@ tags:
 &emsp;&emsp;什么是光流? 字面上的意思就是光的流动. 通过追踪视频前后帧对应像素点之间的位移, 可用于视频防抖, 视频压缩等领域. 曾经见过同事用光流法做视频的多帧对齐融合降噪, 五颜六色的光流图看起来很酷炫. 所以出于好奇, 看了一些关于光流的基本知识和经典文章, 下面做一些记录.
 
 ***
->+ # 传统算法--`Lucas-Kanade`
+>+ # 传统算法 -- Lucas-Kanade
 
 &emsp;&emsp;直观地想象一下, 针对这样一个问题: 追踪视频前后帧对应像素点的矢量位移, 需要先检测出前一帧的特征点, 再检测出下一帧的特征点, 并且需要把它们一一对应匹配起来, 对应的连线就是光流, 是一个长度为2的矢量[u, v], 分别代表在x, y轴方向的移动速度(单位时间内的位移). 如果需要求出所有像素点的光流, 就是稠密光流计算, 计算量比较大. 这里要介绍的是一种稀疏光流计算法, 只抽取某一些局部特征点, 计算少数点的光流.  
 &emsp;&emsp;为了简化问题, 针对光流问题有以下两个假设:  
@@ -132,8 +132,10 @@ $\hat I_i(x, y)=I_{i-1}(x+u_i, y+v_i)$
 <br
 />
 ##### 参考资料:  
-OpenCV关于Optical-flow的例子: <https://docs.opencv.org/3.4.5/d7/d8b/tutorial_py_lucas_kanade.html>  
-FlowNet 2.0站点: <https://lmb.informatik.uni-freiburg.de/Publications/2017/IMSKDB17/>  
+OpenCV关于Optical-flow的例子:   
+<https://docs.opencv.org/3.4.5/d7/d8b/tutorial_py_lucas_kanade.html>  
+FlowNet 2.0站点:  
+<https://lmb.informatik.uni-freiburg.de/Publications/2017/IMSKDB17/>  
 
 
 
