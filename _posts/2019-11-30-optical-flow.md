@@ -62,8 +62,8 @@ $\frac{\partial I}{\partial x}\cdot\frac{dx}{dt} + \frac{\partial I}{\partial y}
 >> ### 网络结构
 
 ![](/assets/images/optical/5.png)
-&emsp;&emsp;**暴力CNN:** 输入是连续的两帧RGB图concatenate在一起, 一共是6层channel; 输出是光流图, 猜测是2层通道. 其实就是U-Net的Encoder-Decoder + Skip connection结构. 思路很直接, 做法比较硬核.  
 ![](/assets/images/optical/6.png)
+&emsp;&emsp;**暴力CNN:** 输入是连续的两帧RGB图concatenate在一起, 一共是6层channel; 输出是光流图, 猜测是2层通道. 其实就是U-Net的Encoder-Decoder + Skip connection结构. 思路很直接, 做法比较硬核.   
 &emsp;&emsp;**人工correlation CNN:** 像前面那样暴力丢数据让网络去硬学输入和输出之间的联系, 可能没有学习到问题的本质. 所以在这里加了人工干预, 让连续两帧之间产生刻意的联系. 具体的来说, 两帧分别做两路输入, 然后在某一层级的feature上, 采用"人工卷积"让两路合并成一路, 剩下的结构与"暴力CNN"相同. "人工卷积"的操作如下, 即在两路feature上做空间卷积(图中黄色箭头部分).   
 ![](/assets/images/optical/7.png)
 &emsp;&emsp;在第一帧的像素点上, 使用第二帧对应位置邻域上的feature值做相互的卷积操作, 以这种方式学习得到像素点在前后两帧间的差异. 这是一种无网络参数的操作, 不占显存.  
@@ -89,7 +89,7 @@ $\frac{\partial I}{\partial x}\cdot\frac{dx}{dt} + \frac{\partial I}{\partial y}
 ***
 >+ # FlowNet 2.0: Evolution of Optical Flow Estimation with Deep Networks (CVPR 2017)
 
-&emsp;&emsp;这篇文章是上一篇文章的进阶版, 作者是同一批人. 主要有三个改进: 一, 在网络结构上, 采用boosting的思想, 将FlowNet 1.0中的`FlowNetSimple`和`FlowNetCorr`两个基本网络重复堆叠在一起, 后面的学习器学习前面学习器产生的残差. 二, 对训练策略进行调整, 不让网络过早地接触人造数据集, 从而避免学习到不本质的现象. 三, FlowNet 1.0对大运动敏感, 小运动效果不佳, 这与传统算法刚好相反, 而这里FlowNet 2.0针对小运动专门增加subnetwork提高小运动场景下的效果.
+&emsp;&emsp;这篇文章是上一篇文章的进阶版, 作者是同一批人. 主要有三个改进: 一, 在网络结构上, 采用boosting的思想, 将FlowNet 1.0中的`FlowNetSimple`和`FlowNetCorr`两个基本网络重复堆叠在一起, 后面的学习器学习前面学习器产生的残差. 二, 对训练策略进行调整, 不让网络过早地接触太复杂的数据集, 从而避免学习到不本质的现象. 三, FlowNet 1.0对大运动敏感, 小运动效果不佳, 这与传统算法刚好相反, 而这里FlowNet 2.0针对小运动专门增加subnetwork提高小运动场景下的效果.
 
 >+ ### 网络结构
 
