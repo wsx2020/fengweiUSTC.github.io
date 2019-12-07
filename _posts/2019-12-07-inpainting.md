@@ -15,6 +15,7 @@ tags:
 &emsp;&emsp;再直观地想一想细节, 流体在扩散过程中, 是沿着梯度最大的方向运动的, 这是符合物理的. 但如果在`inpainting`任务上, 图片中有纹理有不同颜色的像素块, 如果像素按照梯度最大的方向运动, 这些纹理都会被抹平, 所以为了保留纹理信息, 这里与CFD不同的是, 需要让像素按照梯度的法向方向去运动.
 
 >> ### 理论推导
+
 &emsp;&emsp;文中用$I(i,j)$来表示像素值(RGB三通道分别处理), $\overrightarrow L(i, j)$来表示要流动的信息矢量, ${\overrightarrow{N}}(i,j)$来表示信息流动的方向, 总的更新公式为:
 ![](/assets/images/inpainting/1.png)
 ![](/assets/images/inpainting/2.png)
