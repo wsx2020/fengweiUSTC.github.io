@@ -23,9 +23,9 @@ tags:
 &emsp;&emsp;这里有如下关系, 要流动的信息$L(i, j)$表示了像素的光滑程度, 也就是像素的二阶微分.  
 $L(i,j)=\frac{\partial I^2}{\partial x^2}+\frac{\partial I^2}{\partial y^2} = \frac{I(i,j+1)-2\ast I(i,j)+I(i,j-1)}{dx^2} + \frac{I(i+1, j)-2\ast I(i,j)+I(i-1,j)}{dy^2}$
 &emsp;&emsp;信息矢量$\overrightarrow L(i, j)$有如下形式:
-![](/assets/images/inpainting/4.png)  
+![](/assets/images/inpainting/4.png)
 &emsp;&emsp;像素值的梯度方向: $\nabla I = (\frac{\partial I}{\partial y}, \frac{\partial I}{\partial y})$, 但`inpainting`需要的是梯度的法向方向: $\nabla^\top I = (-\frac{\partial I}{\partial x}, \frac{\partial I}{\partial y})$. 所以, 信息流动单位矢量${\overrightarrow{N}}(i,j)$为
-![](/assets/images/inpainting/3.png)  
+![](/assets/images/inpainting/3.png)
 &emsp;&emsp;上面信息流动矢量是单位矢量, 还要乘上其模大小:
 ![](/assets/images/inpainting/5.png)
 ![](/assets/images/inpainting/6.png)
