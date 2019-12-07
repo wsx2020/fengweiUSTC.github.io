@@ -24,18 +24,14 @@ tags:
 $L(i,j)=\frac{\partial I^2}{\partial x^2}+\frac{\partial I^2}{\partial y^2} = \frac{I(i,j+1)-2\ast I(i,j)+I(i,j-1)}{dx^2} + \frac{I(i+1, j)-2\ast I(i,j)+I(i-1,j)}{dy^2}$
 &emsp;&emsp;信息矢量$\overrightarrow L(i, j)$有如下形式:
 ![](/assets/images/inpainting/4.png)  
-
 &emsp;&emsp;像素值的梯度方向: $\nabla I = (\frac{\partial I}{\partial y}, \frac{\partial I}{\partial y})$, 但`inpainting`需要的是梯度的法向方向: $\nabla^\top I = (-\frac{\partial I}{\partial x}, \frac{\partial I}{\partial y})$. 所以, 信息流动单位矢量${\overrightarrow{N}}(i,j)$为
 ![](/assets/images/inpainting/3.png)  
-
 &emsp;&emsp;上面信息流动矢量是单位矢量, 还要乘上其模大小:
 ![](/assets/images/inpainting/5.png)
 ![](/assets/images/inpainting/6.png)
-&emsp;&emsp;之所以要如此大费周章地化成单位矢量然后又乘以模, 是因为CFD中的数值不稳定性. 化成单位矢量的过程中求梯度的差分用的是中心差分, 乘以模的过程中求梯度的差分用的是前向(backward, 用b表示)和后向差分(forward, 用f表示), 否则程序容易发散. 详情参阅数值稳定性分析的内容, 那可是个大部头的书.  
-
+&emsp;&emsp;之所以要如此大费周章地化成单位矢量然后又乘以模, 是因为CFD中的数值不稳定性. 化成单位矢量的过程中求梯度的差分用的是中心差分, 乘以模的过程中求梯度的差分用的是前向(backward, 用b表示)和后向差分(forward, 用f表示), 否则程序容易发散. 详情参阅数值稳定性分析的内容, 那可是个大部头的书.   
 &emsp;&emsp;上面的$\overrightarrow L(i, j)$和${\overrightarrow{N}}(i,j)$都确定后, 即可计算每次更新的$I_t$:  
 ![](/assets/images/inpainting/7.png)
-
 &emsp;&emsp;额外的, 文中还给出了关于像素$I$的扩散方程, 在经过上面的数次迭代过程后(对空缺区域补全), 对$I$进行少数的几次扩散(对边缘过渡区域进行羽化), 可以使结果更好.
 ![](/assets/images/inpainting/10.png)
 
@@ -46,12 +42,10 @@ $L(i,j)=\frac{\partial I^2}{\partial x^2}+\frac{\partial I^2}{\partial y^2} = \f
 ![](/assets/images/inpainting/9.png)
 &emsp;&emsp;自己用`python`的`numpy`复现了一下, 可以看到纹理的等值线在`mask`区域得到了延伸. 
 ![](/assets/images/inpainting/11.png)  
- 
 &emsp;&emsp;针对自然场景, 用我们家的小肥猫做测试. `mask`确实不见了, 总体视觉效果可以, 但是也存在部分纹理失真, 比如脸上的八字出现了折线, 鼻头部分缺失等. 这里, 自己跑的结果看起来比`OpenCV`好的原因是经过了更长次数的迭代, 相比起来时间要长了很多.
 ![](/assets/images/inpainting/12.png)
 ![](/assets/images/inpainting/13.png)
 ![](/assets/images/inpainting/14.png)
-
 &emsp;&emsp;代码如下(与原文不同的是这里没有求解$I$的扩散方程, 因为不清楚方程具体的离散方式):
 ```python
     for t in range(nt):
