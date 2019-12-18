@@ -63,5 +63,5 @@ categories:
     fig.colorbar(image, cax=cbar_ax, cmap='Greys_r')
 ```
 
-&emsp;&emsp;下面附上一张速查表:
+&emsp;&emsp;下面附上一张速查表, 右键新页面打开全图可以缩放查看:
 ![](/assets/images/matplotlib/1.png)
