@@ -17,7 +17,9 @@ categories:
 &emsp;&emsp;`Jupyter Notebook`, 把数据存成`.h5`或`.npy`文件, 在`Jupyter`中加载, 使用`%matplotlib inline`在浏览器页面上画图, 然后使用`plt.savefig("name.pdf/.eps")`或`plt.imsave("name.pdf/.eps", file)`来保存矢量格式的图片. 注意, 如果使用`xeLaTex`编译的话需要的是`.eps`格式, 使用`pdfLaTex`编译的话需要的是`.pdf`格式. `.pdf`格式的图片在编译时候速度很快, 人生苦短, 所以建议用`pdfLaTex`. (`VSCode`虽然也原生支持了`Jupyter`, 但亲测不好用, 有很多`bug`, 而且图形化的东西还是在浏览器界面上看着舒服.)   
 &emsp;&emsp;针对由`PPT`制作的示意图, 需要将整个`.pptx`保存成`.pdf`文件才能保留矢量信息, 如果想要去除大面积的边框空白或者想转化成`.eps`格式, 需要用`Adobe Acrobat DC`转化一下(尊重版权, 我爱zheng版).  
 4. 论文写作  
-&emsp;&emsp;`VSCode+LaTex插件`, 针对这个组合之前专门写过一篇[配置教程](https://fengweiustc.github.io/computer-skills/2019/11/17/vscode/). `WinEdt/TeXLive`之类的编辑器, 写着没有`VSCode`有感觉.  
+&emsp;&emsp;`VSCode+LaTex插件`, 针对这个组合之前专门写过一篇[配置教程](https://fengweiustc.github.io/computer-skills/2019/11/17/vscode/). `WinEdt/TeXLive`之类的编辑器, 写着没有`VSCode`有感觉.   
+5. 参考文献  
+&emsp;&emsp;`JabRef`, 一般期刊要求参考文献的人名和期刊名缩写, 用这个软件可以自动缩写一部分期刊名(没法自动转缩写的需要自己手动查手动改), 同时可以自动检查所有的格式错误.  
 
 &emsp;&emsp;总的来说, 就是尽量摆脱对特定软件的依赖, 能在`VSCode`上插件化的尽量插件化, 能用代码库的尽量调库, 能统一数据格式的尽量统一格式, 能统一编程语言的尽量统一成`Python`.
 
