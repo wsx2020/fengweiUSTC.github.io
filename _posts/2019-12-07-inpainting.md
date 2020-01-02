@@ -7,6 +7,7 @@ tags:
 ---
 
 &emsp;&emsp;无意间翻阅了OpenCV计算摄影学篇章的教程, 主要有三部分: `Image denoising`, `Image inpainting`和`HDR`, 基本上对应着组里`ISP`方向现有的研究内容. 其中, 提到了一种使用计算流体动力学(Computational Fluid Dynamics/CFD)的方法来解决`inpainting`问题, 而CFD恰巧是我所熟悉的, 所以就找了对应的文献简单复现了一下, 下面做一些记录. 需要注意的是, 这里所涉及的都是传统算法, 与深度学习方法无关.
+<!-- more -->
 
 ***
 >+ # Image Inpainting (year 2000, cite 4088)

@@ -7,6 +7,7 @@ tags:
 ---
 
 &emsp;&emsp;因为在做硕士课题的过程中碰到了一些时序上的多帧处理, 就采用了`Encoder-Decoder + ConvLSTM cell`来做时序上的演化. 调研了一些文献, 发现相关的工作确实比较少, 大多集中在`Image to caption`, `video object segmentation`, `semantic instance segmentation`方面, 且大部分发表在早期的2015-2016年间, 随后都转向`attention`的研究工作了. RNN存在占用显存大、超长时记忆缺陷的问题, 做NLP的早已全面抛弃RNN转向`attention`的怀抱, 这些年CV方面也慢慢地向`attention`靠拢, 以后是个趋势, 所以学习了一下`attention`到底是个什么东西, 下面做一些记录.
+<!-- more -->
 
 ***
 >+ # 我理解的`Attention`

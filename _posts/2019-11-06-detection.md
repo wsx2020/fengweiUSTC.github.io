@@ -8,6 +8,7 @@ tags:
 ---
 
 &emsp;&emsp;旷视detection组的一篇轻量级two-stage目标检测论文, 起的名字很好听, ThunderNet, 所以就特意找出来看一看. 以前接触detection比较少, 就趁这个机会把一些经典的object detection论文找出来读一读, 主要有two-stage的Faster-RCNN和ont-stage的YOLO、SDD, 它们奠定了一些基本的思路和框架, 新发表的论文基本是在此基础上做延伸, 有需要的时候再细看, 下面是一些总结. (全文4000多字, 涉及4篇paper, 27张图, 加载起来可能比较慢.)
+<!-- more -->
 
 ***
 >+ # 问题概述
