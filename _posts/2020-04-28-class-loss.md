@@ -15,7 +15,7 @@ tags:
 
 &emsp;&emsp;在回归问题上，ground truth是连续值，因此用L1距离或L2距离就能比较合理地度量预测值和ground truth之间的偏差。由此形成的优化空间也比较平滑，易于朝着正确的方向收敛。但是在分类问题上，ground truth是离散值，经过softmax处理后变成了one-hot编码，此时编码与编码之间的L1/L2距离是没有意义的，所以通常用交叉熵来度量预测值和ground truth这两个分布之间的近似程度。  
 &emsp;&emsp;交叉熵也被称为softmax loss，模型最后一层softmax的输入x经过$e^x$处理并归一化后，大的值会更大，小的值会更小，相当于强化了类与类之间的分离，形成大的类间距离，这是有助于进行分类的。  
-$L_{cross_entropy}(x, class)=-log\;p_{class}=-log(\frac{e^{x\[class\]}}{\sum_j e^{x\[j\]}})$  
+$L_{cross\;entropy}(x, class)=-log\;p_{class}=-log(\frac{e^{x\[class\]}}{\sum_j e^{x\[j\]}}\;)$  
 &emsp;&emsp;如下图，把用于MNIST手写体识别的卷积网络最后一层的feature维度设为2，由此可以在二维平面上显示所属不同类别的feature的空间分布情况。可以看到，不同类之间有着明显的间隔，非常易于分类。但另一方面，虽然类间距离大了，但类内距离也很大，每一类的低维流形（manifold）有着较大的方差，通俗的来说就是散点分布比较广泛，不紧凑。这对于普通的ImageNet分类这种问题影响不大，但对于人脸识别这种需要identification和verification的任务来说，具有很大的影响。
 ![](/assets/images/class-loss/1.png)
 &emsp;&emsp;具体的来说，人脸识别（identification）是要把一张输入的人脸图抽出来的feature分成不同的身份（identity），即分成不同的类，底库中有多少个ID，就有着多少个类。它要求类与类之间的距离尽可能地远，即类间距离（inter-personal variations）大，间隔越大越清晰，才能分得越准确，减小误识率（false accept rate）。而人脸验证（verification）则是要判断来自同一个人的两张人脸feature，是否会被正确分类成同一个ID，是一个二分类问题。它要求属于同一类的feature尽可能地靠得近，即类内距离（intra-personal variations）小，分布地紧凑（compactness），才能提高准确率（true positive rate）。  
