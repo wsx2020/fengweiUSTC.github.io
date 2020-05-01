@@ -109,7 +109,7 @@ Identification-Verification][2]
 &emsp;&emsp;上式中，m代表batch样本数目，$c_{yi}$即代表第i类特征的中心点。在初始化时，它由网络所提取的第i类特征矢量取平均得来，在随后的迭代过程中，由于网络的权重参数不断地在更新，每一类的特征矢量也在逐渐变化，为了不浪费之前迭代步中所计算出的中心点，并没有重新取平均求中心点，而是对中心点以梯度下降的方式更新：
 ![](/assets/images/class-loss/18.png)
 &emsp;&emsp;其中，梯度是根据损失值$L_c$对中心点$c_{yi}$求导得来：  
-&emsp;&emsp;$\Delta c_j = \frac{L_c}{c_{yj}} = \sum_{i=1}^m (c_{yj}-x_i)$  
+&emsp;&emsp;$\Delta c_j = \frac{\partial L_c}{\partial c_{yj}} = \sum_{i=1}^m (c_{yj}-x_i)$  
 &emsp;&emsp;同contrastive loss一样，center loss只关注了减小类内距离，因此还需要softmax loss来辅助做类间分离，二者之间用$\lambda$系数作平衡。最终总loss如下：
 ![](/assets/images/class-loss/19.png)
 
