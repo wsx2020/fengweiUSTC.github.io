@@ -1,5 +1,5 @@
 ---
-title:  intra-class/inter-class loss -- Softmax loss / Contrastive loss / Triplet loss / Center loss / Large-margin softmax loss
+title:  intra-class / inter-class loss
 categories:
 - paper-reading
 tags:
@@ -15,16 +15,14 @@ tags:
 
 &emsp;&emsp;在回归问题上，ground truth是连续值，因此用L1距离或L2距离就能比较合理地度量预测值和ground truth之间的偏差。由此形成的优化空间也比较平滑，易于朝着正确的方向收敛。但是在分类问题上，ground truth是离散值，经过softmax处理后变成了one-hot编码，此时编码与编码之间的L1/L2距离是没有意义的，所以通常用交叉熵来度量预测值和ground truth这两个分布之间的近似程度。  
 &emsp;&emsp;交叉熵也被称为softmax loss，模型最后一层softmax的输入x经过$e^x$处理并归一化后，大的值会更大，小的值会更小，相当于强化了类与类之间的分离，形成大的类间距离，这是有助于进行分类的。  
-$L_{cross entropy}(x, class)=-logp_{class}=-log(\frac{e^{x\[class\]}}{\sum_j e^{x\[j\]}})$  
+$L_{cross_entropy}(x, class)=-log\;p_{class}=-log(\frac{e^{x\[class\]}}{\sum_j e^{x\[j\]}})$  
 &emsp;&emsp;如下图，把用于MNIST手写体识别的卷积网络最后一层的feature维度设为2，由此可以在二维平面上显示所属不同类别的feature的空间分布情况。可以看到，不同类之间有着明显的间隔，非常易于分类。但另一方面，虽然类间距离大了，但类内距离也很大，每一类的低维流形（manifold）有着较大的方差，通俗的来说就是散点分布比较广泛，不紧凑。这对于普通的ImageNet分类这种问题影响不大，但对于人脸识别这种需要identification和verification的任务来说，具有很大的影响。
 ![](/assets/images/class-loss/1.png)
 &emsp;&emsp;具体的来说，人脸识别（identification）是要把一张输入的人脸图抽出来的feature分成不同的身份（identity），即分成不同的类，底库中有多少个ID，就有着多少个类。它要求类与类之间的距离尽可能地远，即类间距离（inter-personal variations）大，间隔越大越清晰，才能分得越准确，减小误识率（false accept rate）。而人脸验证（verification）则是要判断来自同一个人的两张人脸feature，是否会被正确分类成同一个ID，是一个二分类问题。它要求属于同一类的feature尽可能地靠得近，即类内距离（intra-personal variations）小，分布地紧凑（compactness），才能提高准确率（true positive rate）。  
 &emsp;&emsp;如下图，是MegaFace数据集中的样本，左边是属于同一个人A的不同照片，右边是不同人（A、B、C、D等）的照片。identification的过程是在训练时把ABCD等的人脸图通过CNN提取feature，映射成低维空间上的对应向量；verification的过程是在测试时把A的人脸图的feature，同底库中A的人脸feature做对比，看是否靠得足够近以判断它们是属于同一个人。如果采用了普通的softmax loss，类间距离虽然有较为清晰的界限，易于identification，但类内距离较大，不易于verification。
-
 ![](/assets/images/class-loss/2.png)
-
 &emsp;&emsp;下图是一些典型的出错场景。False accept，本来不是同一个人，错误地被判断成是同一个人，说明它们各自的feature没有分得足够开；False reject，本来是同一个人，错误地被判断成不是同一个人，说明这个人的多个feature不够紧凑。
-![](/assets/images/class-loss/3.png)  
+![](/assets/images/class-loss/3.png)
 &emsp;&emsp;下面以人脸识别为任务场景，介绍常用的改善类间距离和类内距离的几种经典loss。
 
 ***
@@ -36,11 +34,11 @@ $L_{cross entropy}(x, class)=-logp_{class}=-log(\frac{e^{x\[class\]}}{\sum_j e^{
 
 >> ### 具体形式
 
-![](/assets/images/class-loss/4.png)  
+![](/assets/images/class-loss/4.png)
 &emsp;&emsp;上式中，$f$代表从人脸图提取出的特征矢量，当它们来自同一个人时（$y_{ij}=1$），取两个特征的L2距离作为loss值，意味着该距离在优化时会越来越小；当它们来自不同的两个人时（$y_{ij}=-1$），同样是取两个特征的L2距离，但是前面加了负号，意味着优化时该距离越大越好。同时，针对非同类距离还做了阈值m的截断处理，也就是说当距离远到大过m时，就忽略该项，这样做相当于只考虑周边临近点的影响，而不是盲目地排斥所有的非同类点，鲁棒性会更强，计算量也更小。  
-&emsp;&emsp;下图是该loss的曲线图，红色曲线代表同类点间的loss，蓝色曲线代表非同类点的。作者将其类比成弹簧-振子系统，具有很直观的物理意义，很符合直觉。  
+&emsp;&emsp;下图是该loss的曲线图，红色曲线代表同类点间的loss，蓝色曲线代表非同类点的。作者将其类比成弹簧-振子系统，具有很直观的物理意义，很符合直觉。
 ![](/assets/images/class-loss/5.png)
-![](/assets/images/class-loss/6.png)  
+![](/assets/images/class-loss/6.png)
 
 >> ### 实验过程
 
@@ -75,22 +73,22 @@ Identification-Verification][2]
 
 >> ### 具体形式
 
-&emsp;&emsp;对于一张任意的候选人脸$x_i^a$，所有与之同类的人脸$x_i^p$（positive），以及所有与之非同类的人脸$x_i^n$（negative），需要满足类内距离加余量$\alpha$小于类间距离，即有以下的目标关系：  
-![](/assets/images/class-loss/10.png)  
-&emsp;&emsp;上式经过移项调整，就可得统一的loss形式：  
-![](/assets/images/class-loss/11.png)  
-&emsp;&emsp;但在实际优化过程中，如果像contrastive loss那样遍历所有的图像对来计算上述loss，图像对中有大量的easy case，不等式条件很容易就会被满足，从而导致收敛缓慢。所以需要人为挑选不满足条件的hard case，才能推动优化朝着正确的方向前进。针对$x_i^a$，需要在同类样本中找到hard positive $x_i^p$使得有最大的类内距离；需要在非同类样本中找到hard negative $x_i^n$使得有最小的类间距离：    
-![](/assets/images/class-loss/12.png)  
+&emsp;&emsp;对于一张任意的候选人脸$x_i^a$，所有与之同类的人脸$x_i^p$（positive），以及所有与之非同类的人脸$x_i^n$（negative），需要满足类内距离加余量$\alpha$小于类间距离，即有以下的目标关系：
+![](/assets/images/class-loss/10.png)
+&emsp;&emsp;上式经过移项调整，就可得统一的loss形式：
+![](/assets/images/class-loss/11.png)
+&emsp;&emsp;但在实际优化过程中，如果像contrastive loss那样遍历所有的图像对来计算上述loss，图像对中有大量的easy case，不等式条件很容易就会被满足，从而导致收敛缓慢。所以需要人为挑选不满足条件的hard case，才能推动优化朝着正确的方向前进。针对$x_i^a$，需要在同类样本中找到hard positive $x_i^p$使得有最大的类内距离；需要在非同类样本中找到hard negative $x_i^n$使得有最小的类间距离：
+![](/assets/images/class-loss/12.png)
 ![](/assets/images/class-loss/13.png)
 
 >> ### 实验过程
 
 &emsp;&emsp;在上一节中提到，需要找到两个极值的类距离，如果对象是整个训练集，计算一个样本$x_i^a$与其它所有样本的距离需要O(n)次，排序还需要O(nlogn)次操作，不预先储存的话还需要在所有n个样本上重复上述操作，实际是不可行的。同时还可能会受到误标的噪声数据影响。  
 &emsp;&emsp;在FaceNet[[5]]中，提出了两种解决方法。一种是离线计算并储存法，每迭代n步计算一次类距离的极值，而且还只是在训练集的子集上。另一种是在线mini-batch计算法，在大小约为1800的batch上计算类距离极值，计算量得以简化。  
-&emsp;&emsp;另外文中还发现，在训练初期，只计算同类样本的距离会使得收敛更稳定。在训练中后期，才慢慢加入非同类样本，而且为了防止陷入局部次优点，加入的不是hardest negative样本（考虑到会受误标数据的影响），而是semi-hard negative样本$x_i^n$，这部分样本可能处在余量空间内，但依然能有效促进优化的进行。  
-![](/assets/images/class-loss/14.png)  
-&emsp;&emsp;下图是不同pose不同光照下的效果图，每一行左右两张图来自同一个人，数字代表两两之间的特征距离。当阈值设为1.1时，人脸识别的结果就是正确的，表明当前的模型对pose和光照的鲁棒性还是较强的。  
-![](/assets/images/class-loss/15.png)  
+&emsp;&emsp;另外文中还发现，在训练初期，只计算同类样本的距离会使得收敛更稳定。在训练中后期，才慢慢加入非同类样本，而且为了防止陷入局部次优点，加入的不是hardest negative样本（考虑到会受误标数据的影响），而是semi-hard negative样本$x_i^n$，这部分样本可能处在余量空间内，但依然能有效促进优化的进行。
+![](/assets/images/class-loss/14.png)
+&emsp;&emsp;下图是不同pose不同光照下的效果图，每一行左右两张图来自同一个人，数字代表两两之间的特征距离。当阈值设为1.1时，人脸识别的结果就是正确的，表明当前的模型对pose和光照的鲁棒性还是较强的。
+![](/assets/images/class-loss/15.png)
 
 <br
 />
@@ -107,19 +105,19 @@ Identification-Verification][2]
 
 >> ### 具体形式
 
-![](/assets/images/class-loss/16.png)  
-&emsp;&emsp;上式中，m代表batch样本数目，$c_{yi}$即代表第i类特征的中心点。在初始化时，它由网络所提取的第i类特征矢量取平均得来，在随后的迭代过程中，由于网络的权重参数不断地在更新，每一类的特征矢量也在逐渐变化，为了不浪费之前迭代步中所计算出的中心点，并没有重新取平均求中心点，而是对中心点以梯度下降的方式更新：  
-![](/assets/images/class-loss/18.png)  
+![](/assets/images/class-loss/16.png)
+&emsp;&emsp;上式中，m代表batch样本数目，$c_{yi}$即代表第i类特征的中心点。在初始化时，它由网络所提取的第i类特征矢量取平均得来，在随后的迭代过程中，由于网络的权重参数不断地在更新，每一类的特征矢量也在逐渐变化，为了不浪费之前迭代步中所计算出的中心点，并没有重新取平均求中心点，而是对中心点以梯度下降的方式更新：
+![](/assets/images/class-loss/18.png)
 &emsp;&emsp;其中，梯度是根据损失值$L_c$对中心点$c_{yi}$求导得来：  
 &emsp;&emsp;$\Delta c_j = \frac{L_c}{c_{yj}} = \sum_{i=1}^m (c_{yj}-x_i)$  
-&emsp;&emsp;同contrastive loss一样，center loss只关注了减小类内距离，因此还需要softmax loss来辅助做类间分离，二者之间用$\lambda$系数作平衡。最终总loss如下：  
+&emsp;&emsp;同contrastive loss一样，center loss只关注了减小类内距离，因此还需要softmax loss来辅助做类间分离，二者之间用$\lambda$系数作平衡。最终总loss如下：
 ![](/assets/images/class-loss/19.png)
 
 
 >> ### 实验过程
 
 &emsp;&emsp;计算类的中心点时，如果对象是整个训练集，计算量会很大。因此在原文中，采取了与triplet loss相同的mini-batch策略，只在一个batch的样本集上取平均，往后的每次迭代都用梯度更新的方式来不断修正中心点的位置。         
-&emsp;&emsp;为了平衡softmax loss和center loss，原文中同样也进行了权重的调整，不同$\lambda$下的特征分布如下图，可见起到的作用与contrastive loss的相同。  
+&emsp;&emsp;为了平衡softmax loss和center loss，原文中同样也进行了权重的调整，不同$\lambda$下的特征分布如下图，可见起到的作用与contrastive loss的相同。
 ![](/assets/images/class-loss/20.png)
   
 <br
@@ -137,32 +135,32 @@ Identification-Verification][2]
 
 >> ### 具体形式
 
-&emsp;&emsp;普通的softmax loss形式如下：  
-![](/assets/images/class-loss/21.png)  
-&emsp;&emsp;视网络最后的全连接层为线性分类器，其参数为$W$，则特征$f$可展开为矢量相乘形式：  
-![](/assets/images/class-loss/22.png)  
-&emsp;&emsp;把矢量点积按照向量模和夹角相乘的形式展开：  
-![](/assets/images/class-loss/23.png)  
-&emsp;&emsp;那么softmax loss可重新写为  
-![](/assets/images/class-loss/24.png)  
-&emsp;&emsp;为了在不同类之间产生间隔，需要使得  
-![](/assets/images/class-loss/25.png)  
-&emsp;&emsp;问题的关键来了，想要更严格地控制类间距离，可针对上式做一个缩放，在余弦角上施加正整数因子m，m越大，缩放地更严重，不等式条件更严格，类间距离就越大。  
-![](/assets/images/class-loss/26.png)  
-&emsp;&emsp;因此，large-margin softmax loss的公式为  
-![](/assets/images/class-loss/27.png)  
-&emsp;&emsp;其中，  
-![](/assets/images/class-loss/28.png)  
-&emsp;&emsp;上式中，k是[0, m-1]之间的整数。两种loss的曲线对比如下图，可以看到softmax loss是m=1时的特例，当m大于1时，限制条件要更加严格。从特征分布示意图也可以看出，large-margin softmax loss的类间距离要更大。  
+&emsp;&emsp;普通的softmax loss形式如下：
+![](/assets/images/class-loss/21.png)
+&emsp;&emsp;视网络最后的全连接层为线性分类器，其参数为$W$，则特征$f$可展开为矢量相乘形式：
+![](/assets/images/class-loss/22.png)
+&emsp;&emsp;把矢量点积按照向量模和夹角相乘的形式展开：
+![](/assets/images/class-loss/23.png)
+&emsp;&emsp;那么softmax loss可重新写为
+![](/assets/images/class-loss/24.png)
+&emsp;&emsp;为了在不同类之间产生间隔，需要使得
+![](/assets/images/class-loss/25.png)
+&emsp;&emsp;问题的关键来了，想要更严格地控制类间距离，可针对上式做一个缩放，在余弦角上施加正整数因子m，m越大，缩放地更严重，不等式条件更严格，类间距离就越大。
+![](/assets/images/class-loss/26.png)
+&emsp;&emsp;因此，large-margin softmax loss的公式为
+![](/assets/images/class-loss/27.png)
+&emsp;&emsp;其中，
+![](/assets/images/class-loss/28.png)
+&emsp;&emsp;上式中，k是[0, m-1]之间的整数。两种loss的曲线对比如下图，可以看到softmax loss是m=1时的特例，当m大于1时，限制条件要更加严格。从特征分布示意图也可以看出，large-margin softmax loss的类间距离要更大。
 ![](/assets/images/class-loss/29.png)
 ![](/assets/images/class-loss/30.png)
 
 >> ### 实验过程
 
-&emsp;&emsp;在原文[[7]]的实验中， 作者认为L-Softmax loss的收敛难度太高，因此在训练的初期，为了加速收敛，采用原始的softmax loss作为起点，在后期逐渐地过渡到m大于1的L-Softmax loss上。  
-![](/assets/images/class-loss/32.png)   
-&emsp;&emsp;上式中，训练初期$\lambda$很大，相当于softmax loss，随后慢慢减小到接近于0（但不会是0）的小数，此时才成为L-Softmax loss。在不同的缩放因子m下，MNIST手写体的特征分布图如下：  
-![](/assets/images/class-loss/31.png)  
+&emsp;&emsp;在原文[[7]]的实验中， 作者认为L-Softmax loss的收敛难度太高，因此在训练的初期，为了加速收敛，采用原始的softmax loss作为起点，在后期逐渐地过渡到m大于1的L-Softmax loss上。
+![](/assets/images/class-loss/32.png)
+&emsp;&emsp;上式中，训练初期$\lambda$很大，相当于softmax loss，随后慢慢减小到接近于0（但不会是0）的小数，此时才成为L-Softmax loss。在不同的缩放因子m下，MNIST手写体的特征分布图如下：
+![](/assets/images/class-loss/31.png)
 &emsp;&emsp;可以看到，类间距离确实增大了，但感觉类内距离还是很大，同类流形的方差大，不紧凑。虽然原文中声称`the minimum inter-class distance being greater than the maximum intra-class distance.`，但我个人感觉这点效果还是没有达到的。
 
 <br
