@@ -121,8 +121,8 @@
         {% comment %} Blogroll {% endcomment %}
         {% if site.links %}
           <div class="links-of-blogroll motion-element {{ 'links-of-blogroll-' | append: site.links_layout | default: 'inline' }}">
-            <div class="links-of-blogroll-title">
-              <i class="fa  fa-fw fa-{{ site.links_icon | default: 'globe' | downcase }}"></i>
+            <div class="links-of-blogroll-title" style="text-align:center">
+              <i class="fa fa-link"></i>
               {{ site.links_title }}
             </div>
             <ul class="links-of-blogroll-list">

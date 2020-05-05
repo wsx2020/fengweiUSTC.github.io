@@ -229,7 +229,7 @@ social_icons:
   # Icon Mappings.
   # KeyMapsToSocialItemKey: NameOfTheIconFromFontAwesome
   GitHub: github
-  Zhihu: zhihu
+  Zhihu: comment-o  
   Twitter: twitter
   Weibo: weibo
 
