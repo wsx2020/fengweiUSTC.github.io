@@ -84,7 +84,7 @@ keywords: "Jekyll, NexT"
 # Set rss to false to disable feed link.
 # Leave rss as empty to use site's feed link.
 # Set rss to specific value if you have burned your feed already.
-rss: false
+rss:
 
 # Specify the date when the site was setup
 since: 2019
@@ -283,11 +283,12 @@ sidebar:
 
 
 # Blog rolls
-#links_title: Links
+links_title: 友情链接
 #links_layout: block
-#links_layout: inline
-#links:
-  #Title: http://example.com/
+links_layout: inline
+links:
+  Liam Huang: https://liam.page/
+  Yunfeng: http://vra.github.io/
 
 
 # ---------------------------------------------------------------
@@ -605,7 +606,7 @@ algolia_search:
 
 # Local search
 local_search:
-  enable: false
+  enable: true
   # if auto, trigger search by changing input
   # if manual, trigger search by pressing enter key or search button
   trigger: auto
