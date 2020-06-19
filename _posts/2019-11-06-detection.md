@@ -34,7 +34,7 @@ tags:
 &emsp;&emsp;**RPN:**   
 &emsp;&emsp;-- 对每一个pixel提出9个候选框anchor, 这9种anchor如下图所示(长宽比0.5、1、2, 缩放比8、16、32), 一共有60x40x9=21600个anchor. 
 ![](/assets/images/detection/4.png)
-&emsp;&emsp;- 有两个分支, 一路做regression, 输出anchor的四个坐标(中心点x、y, 宽高w、h), 维度是36x60x40, 36即是9种anchor的4个坐标点(其实不是绝对坐标, 而是坐标的偏差, 类似于残差的思想, 在后面loss一节会再做详细介绍); 另一路做classification, 输出该anchor是否存在物体(0或1), 维度是18x60x40, 18即是9种anchor被softmax分成0或1的两类.
+&emsp;&emsp;-- 有两个分支, 一路做regression, 输出anchor的四个坐标(中心点x、y, 宽高w、h), 维度是36x60x40, 36即是9种anchor的4个坐标点(其实不是绝对坐标, 而是坐标的偏差, 类似于残差的思想, 在后面loss一节会再做详细介绍); 另一路做classification, 输出该anchor是否存在物体(0或1), 维度是18x60x40, 18即是9种anchor被softmax分成0或1的两类.  
 &emsp;&emsp;-- 这些anchor数量太多了, 需要进行剔除. 首先去掉超出feature边界的框, 然后标记与Ground Truth之间IoU超过0.7的框即为正例保留, 标记与Ground Truth之间IoU小于0.3的框为反例保留, 其余框剔除. 然后在剩下的框中, 正例随机取128个, 反例随即取128个进行训练. (不同的是, 在inference时, 如果有anchor越界了, 不会进行剔除, 会对其进行clip, 限定在图像区域内.)  
 &emsp;&emsp;-- RPN最后还有一个Proposal层, 细节也比较多. proposal接受经过残差修正后的新anchor(如何修正见下节loss介绍), 再次进行剔除(越界剔除、宽高过小的anchor剔除), 接下来进行非极大值抑制, 旨在去掉重复区域较多的anchors提高效率. 然后按照前面的输出softmax score从大到小对anchors进行排序, 选择前面topN的anchors(即只保留正例anchors). 至此, anchor就是比较干净和较准确的框了, 可以送入下一步进行分类识别.  
 >>> -- 非极大值抑制(Non-Maximun Suppression/NMS): 
